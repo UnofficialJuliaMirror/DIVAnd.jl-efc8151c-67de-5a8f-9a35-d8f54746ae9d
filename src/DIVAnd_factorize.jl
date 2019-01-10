@@ -19,7 +19,7 @@ function DIVAnd_factorize!(s)
     H = s.H;
 
     if s.primal
-        if s.inversion == :chol
+        if (s.inversion == :chol) || (s.inversion == :amd)
             if isa(R,Diagonal)
                 # R \ H is still sparse
                 iR = Diagonal(1 ./ diag(R))
@@ -33,7 +33,7 @@ function DIVAnd_factorize!(s)
 
             # Cholesky factor of the inverse of a posteriori
             # error covariance iP
-            if s.factorize
+            if s.factorize && (s.inversion !== :amd)
                 factorize!(P);
             end
 

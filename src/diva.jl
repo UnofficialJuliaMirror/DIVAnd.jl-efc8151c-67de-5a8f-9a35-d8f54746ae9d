@@ -63,6 +63,7 @@ gridded background field and the observations minus the background field.
 * `niter_e`: Number of iterations to estimate the optimal scale factor of
    `epsilon2` using Desroziers et al. 2005 (doi: 10.1256/qj.05.108). The default
     is 1 (i.e. no optimization is done).
+
 Any additional keywoard arguments understood by `DIVAndgo` can also be used here
 (e.g. velocity constrain)
 

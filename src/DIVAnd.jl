@@ -13,6 +13,7 @@ import Mustache
 import ZipFile
 using Missings
 using StatsBase
+using AlgebraicMultigrid
 
 if VERSION >= v"0.7.0-beta.0"
     using Printf
