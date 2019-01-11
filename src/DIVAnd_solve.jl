@@ -31,9 +31,12 @@ function DIVAnd_solve!(s::DIVAnd_struct{T,Ti,N,OT},fi0,f0; btrunc = []) where {T
             fpi =  P * (H'* (R \ yo[:]));
         elseif s.inversion == :amd
             @debug "Solver: AMD"
-            ml = ruge_stuben(Symmetric(P.IS));
+            ml = ruge_stuben(Symmetric(P.IS),max_levels = 20);
+            @debug "levels $(length(ml.levels))"
             fpi,res = solve(ml,(H'* (R \ yo[:])), verbose=true, log=true, maxiter = s.maxit );
             @debug "Number of iterations: $(length(res))"
+            @debug "First residuals: $(res[1:3])"
+            @debug "Last residuals: $(res[end-2:end])"
         else
             HiRyo = H'* (R \ yo[:]);
             #try to define sparse matrix
