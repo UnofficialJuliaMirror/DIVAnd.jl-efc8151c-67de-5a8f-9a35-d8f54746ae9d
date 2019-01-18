@@ -11,7 +11,9 @@ If the optional arguments contains btrunc, the calculation of iB is limited to t
 
 """
 function DIVAnd_background_components(s,D,alpha; kwargs...)
-
+#function DIVAnd_background_components(s,D,alpha)
+#    kw = Dict()
+    
     WE = s.WE;
     coeff = s.coeff;
     n = s.n;
@@ -27,12 +29,12 @@ function DIVAnd_background_components(s,D,alpha; kwargs...)
     end
 
     # Truncate stored iB AFTER term btrunc, so alpha[btrunc] is the last one
-    btrunc=length(alpha)
+    btrunc=length(alpha)::Int
     if haskey(kw,:btrunc)
         btruncv=kw[:btrunc]
         if btruncv != Any[]
 		    if btrunc>btruncv
-				btrunc=btruncv
+				btrunc=btruncv::Int
 			end
         end
     end
@@ -40,13 +42,13 @@ function DIVAnd_background_components(s,D,alpha; kwargs...)
     # sum all terms of iB
     # iB is adimentional
     iB = alpha[1] * iB_
-
     # loop over all derivatives
 
     for j=2:btrunc
 
         # exponent of laplacian
-        k = Int(floor((j-2)/2))
+        k = (j-2) ÷ 2
+        Dk = D^k
 
         iB_ = spzeros(size(D,1),size(D,1));
 
@@ -56,13 +58,12 @@ function DIVAnd_background_components(s,D,alpha; kwargs...)
             # normalized by surface
 
             for i=1:n
-			# OPTIMIZATION: Do not calculate in directions where L is zero 
-			   if s.Ld[i]>0
-                Dx = s.WEss[i] * s.Dx[i] * D^k;
-                iB_ = iB_ + Dx'*Dx;
-			   end
+			    # OPTIMIZATION: Do not calculate in directions where L is zero
+			    if s.Ld[i] > 0
+                    Dx = s.WEss[i] * s.Dx[i] * Dk;
+                    iB_ = iB_ + Dx'*Dx;
+			    end
             end
-
         else
             # constrain of derivative with even order (j-1)
             # (laplacian, biharmonic,...)
@@ -72,7 +73,8 @@ function DIVAnd_background_components(s,D,alpha; kwargs...)
             # become integrals
             # WD: units length^(n/2)
 
-            WD = WE * D^(k+1);
+            WD = WE * (D * Dk)
+            #WD = WE * D^(k+1);
             iB_ = WD'*WD;
         end
 
@@ -83,7 +85,6 @@ function DIVAnd_background_components(s,D,alpha; kwargs...)
         end
 
         iB = iB + alpha[j] * iB_
-		
     end
 
     # iB is adimensional
@@ -95,8 +96,9 @@ function DIVAnd_background_components(s,D,alpha; kwargs...)
 		s.WEss[1]=s.WEss[1]+s.Dx[i]'*(s.WEss[i] *(s.WEss[i] *(s.Dx[i])))
 	  end
 	end
-	
+
     return iB
+
 end
 
 # LocalWords:  iB DIVAnd

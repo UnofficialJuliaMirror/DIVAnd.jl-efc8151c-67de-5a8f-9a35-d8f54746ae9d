@@ -13,7 +13,7 @@ import Mustache
 import ZipFile
 using Missings
 using StatsBase
-#using JLD2
+using JLD2
 
 if VERSION >= v"0.7.0-beta.0"
     using Printf
@@ -91,7 +91,7 @@ mutable struct DIVAnd_struct{T,Ti,N,OT}
     mask_stag::Vector{BitArray{N}}
     WEs::Vector{OT}
     WEss::Vector{OT}
-    Dx::NTuple{N,AbstractMatrix{T}}
+    Dx::NTuple{N,OT}
     alpha::Vector{T}
     iB::OT
     #iB_::Vector{Any}

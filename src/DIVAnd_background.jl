@@ -17,15 +17,16 @@ finite-difference operators on a curvilinear grid
     * s.n: number of dimenions
     * s.coeff: scaling coefficient such that the background variance diag(inv(iB)) is one far away from the boundary.
 """
-#function DIVAnd_background(operatortype,mask,pmn,Labs,alpha,moddim,scale_len = true,mapindex = []; btrunc = [])
-function DIVAnd_background(operatortype,mask,pmn,Labs,alpha,moddim)
+function DIVAnd_background(operatortype,mask,pmn,Labs,alpha,moddim;
+                           scale_len = true, mapindex = [], btrunc = [])
+#function DIVAnd_background(operatortype,mask,pmn,Labs,alpha,moddim)
     Labs = len_harmonize(Labs,mask)
-    return DIVAnd_background(operatortype,mask,pmn,Labs,alpha,moddim)
+    return DIVAnd_background(operatortype,mask,pmn,Labs,alpha,moddim,scale_len,mapinde,btrunc)
 end
 
-function DIVAnd_background(operatortype,mask,pmn,Labs::NTuple{N,AbstractArray{T,N}},alpha,moddim) where {T,N}
-    scale_len = true; mapindex = []; btrunc = []
-
+function DIVAnd_background(operatortype,mask,pmn,
+                           Labs::NTuple{N,AbstractArray{T,N}},alpha,moddim,
+                           scale_len,mapinde,btrunc) where {T,N}
     # number of dimensions
     n = ndims(mask)
 
@@ -56,7 +57,7 @@ function DIVAnd_background(operatortype,mask,pmn,Labs::NTuple{N,AbstractArray{T,
             rethrow(err)
         end
     end
-    len_scale
+
     if scale_len
         # scale Labs by len_scale so that all kernels are similar
         Labs =
@@ -84,22 +85,20 @@ function DIVAnd_background(operatortype,mask,pmn,Labs::NTuple{N,AbstractArray{T,
                            iscyclic,mapindex,Labs)
 
     # D is laplacian (a dimensional, since nu = Labs.^2)
-    sv = s.sv
     n = s.n
-
 
     # norm taking only dimension into account with non-zero correlation
     # WE: units length^(neff/2)
 
     ivol_eff = .*(pmn[Ld .> 0]...)
 
-	WE = oper_diag(operatortype,statevector_pack(sv,(1 ./ sqrt.(ivol_eff),))[:,1])
+	WE = oper_diag(operatortype,statevector_pack(s.sv,(1 ./ sqrt.(ivol_eff),))[:,1])
 
 	Ln = prod(Ld[Ld .> 0])
 
 	coeff = coeff * Ln # units length^n
 
-    pmnv = zeros(eltype(pmn[1]),sv.n,N)
+    pmnv = zeros(eltype(pmn[1]),s.sv.n,N)
     for i = 1:N
         if Ld[i] == 0
             pmnv[:,i] .= 1
@@ -156,7 +155,7 @@ function DIVAnd_background(operatortype,mask,pmn,Labs::NTuple{N,AbstractArray{T,
 
 	# mean correlation legth
 	s.Ld = Ld
-
+    #JLD2.@save "/tmp/DIVAnd_background_components.jld2"  s D alpha btrunc
 	iB = DIVAnd_background_components(s,D,alpha,btrunc=btrunc)
 
 	# inverse of background covariance matrix
