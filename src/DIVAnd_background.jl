@@ -15,18 +15,20 @@ finite-difference operators on a curvilinear grid
     * s.iB: inverse of the background error covariance
     * s.L: spatial average correlation length
     * s.n: number of dimenions
-    * s.coeff: scaling coefficient such that the background variance diag(inv(iB)) is one far away from the boundary.
+    * s.coeff: scaling coefficient such that the background variance
+         diag(inv(iB)) is one far away from the boundary.
 """
-function DIVAnd_background(operatortype,mask,pmn,Labs,alpha,moddim;
-                           scale_len = true, mapindex = [], btrunc = [])
-#function DIVAnd_background(operatortype,mask,pmn,Labs,alpha,moddim)
+function DIVAnd_background(operatortype,mask,pmn,Labs,alpha,moddim,
+                           scale_len = true,mapindex = []; kwargs...)
     Labs = len_harmonize(Labs,mask)
-    return DIVAnd_background(operatortype,mask,pmn,Labs,alpha,moddim,scale_len,mapinde,btrunc)
+    return DIVAnd_background(operatortype,mask,pmn,Labs,alpha,moddim,scale_len,
+                             mapindex, kwargs...)
 end
 
 function DIVAnd_background(operatortype,mask,pmn,
                            Labs::NTuple{N,AbstractArray{T,N}},alpha,moddim,
-                           scale_len,mapinde,btrunc) where {T,N}
+                           scale_len = true, mapindex = [];
+                           btrunc = []) where {T,N}
     # number of dimensions
     n = ndims(mask)
 
