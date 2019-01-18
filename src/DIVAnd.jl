@@ -304,8 +304,8 @@ Len = len_harmonise(len,mask)
 Produce a tuple of arrays of the correlation length `len` which can be either a scalar (homogeneous and isotropic case),
 a tuple of scalar (homogeneous case) or already a tuple of arrays (general case). The the later case the size of the arrays are veryfied.
 """
-function len_harmonize(len::T,mask::AbstractArray{Bool,N})::NTuple{N, Array{T,N}} where T <: Number where N
-    return ((fill(len,size(mask)) for i=1:N)...,)
+function len_harmonize(len::T,mask::AbstractArray{Bool,N}) where T <: Number where N
+    return ntuple(i -> fill(len,size(mask)), Val(N))
 end
 
 function len_harmonize(len::NTuple{N,T},mask::AbstractArray{Bool,N})::NTuple{N, Array{T,N}} where T <: Number where N

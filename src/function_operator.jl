@@ -141,6 +141,63 @@ function matfun_shift(sz1,m,cyclic = false)
 
 end
 
+function stagger(sz1::NTuple{N},m,x,cyclic) where N
+    out =
+        if !cyclic
+            sz = ntuple(i -> (i == m ? (sz1[i]-1) : sz1[i]), Val(N))
+            zeros(prod(sz))
+        else
+            zeros(length(x))
+        end
+
+    return stagger!(sz1::NTuple{N},m,x,out,cyclic)
+end
+
+function stagger!(sz1::NTuple{N},m,x,out,cyclic) where N
+    LI1 = LinearIndices(sz1)
+    if !cyclic
+        sz = ntuple(i -> (i == m ? (sz1[i]-1) : sz1[i]), Val(N))
+
+        @simd for lind in eachindex(out)
+            ind = CartesianIndices(sz)[lind]
+            ind2 = CartesianIndex(ntuple(i -> (i == m ?  (ind[i] + 1) : ind[i]),Val(N)))
+            @inbounds out[lind] = 0.5 * (x[LI1[ind]] + x[LI1[ind2]])
+        end
+        return out
+    else
+        @simd for lind in eachindex(out)
+            ind = CartesianIndices(sz1)[lind]
+            ind2 = CartesianIndex(ntuple(i -> (i == m ?  (ind[i] % sz1[i]) + 1 : ind[i]),Val(N)))
+            @inbounds out[lind] = 0.5 * (x[LI1[lind]] + x[LI1[ind2]])
+        end
+
+        return out
+    end
+end
+
+#=
+function stagger(sz1,m,x,cyclic)
+    x = reshape(x,sz1)
+
+    if !cyclic
+        #ind1 = [ (i == m ? (2:sz1[i]) : (1:sz1[i])) for i = 1:length(sz1)]
+        ind1 = ntuple(i -> (i == m ? (2:sz1[i]) : (1:sz1[i])), length(sz1))
+        #ind2 = [ (i == m ? (1:sz1[i]-1) : (1:sz1[i])) for i = 1:length(sz1)]
+        ind2 = ntuple(i -> (i == m ? (1:sz1[i]-1) : (1:sz1[i])), length(sz1))
+        return 0.5 * (x[ind1...] + x[ind2...])[:]
+    else
+        tmp = zeros(length(x))
+        for lind in eachindex(tmp)
+            ind = CartesianIndices(sz1)[lind]
+            ind2 = CartesianIndex(ntuple(i -> (i == m ?  (ind[i] % sz1[i]) + 1 : ind[i]),length(ind)))
+            tmp[lind] = 0.5 * (x[lind] + x[ind2])
+        end
+
+        return tmp
+    end
+end
+=#
+
 """
 S = matfun_stagger(sz1,m,cyclic)
 
@@ -159,16 +216,7 @@ function matfun_stagger(sz1,m,cyclic = false)
     sz2 = ntuple(i -> (i == m && !cyclic ? sz1[i]-1 : sz1[i]), length(sz1))
 
     function fun(x)
-        x = reshape(x,sz1)
-
-        if !cyclic
-            ind1 = [ (i == m ? (2:sz1[i]) : (1:sz1[i])) for i = 1:length(sz1)]
-            ind2 = [ (i == m ? (1:sz1[i]-1) : (1:sz1[i])) for i = 1:length(sz1)]
-            return (x[ind1...] + x[ind2...])[:]/2
-        else
-            ind = [ (i == m ? [2:sz1[i]; 1] : (1:sz1[i])) for i = 1:length(sz1)]
-            return (x[ind...] + x)[:]/2
-        end
+        return stagger(sz1,m,x,cyclic)
     end
 
     # adjoint
