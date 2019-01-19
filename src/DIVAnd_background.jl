@@ -87,7 +87,6 @@ function DIVAnd_background(operatortype,mask,pmn,
                            iscyclic,mapindex,Labs)
 
     # D is laplacian (a dimensional, since nu = Labs.^2)
-    n = s.n
 
     # norm taking only dimension into account with non-zero correlation
     # WE: units length^(neff/2)
@@ -100,7 +99,7 @@ function DIVAnd_background(operatortype,mask,pmn,
 
 	coeff = coeff * Ln # units length^n
 
-    pmnv = zeros(eltype(pmn[1]),s.sv.n,N)
+    pmnv = zeros(eltype(pmn[1]),length(mask),N)
     for i = 1:N
         if Ld[i] == 0
             pmnv[:,i] .= 1
