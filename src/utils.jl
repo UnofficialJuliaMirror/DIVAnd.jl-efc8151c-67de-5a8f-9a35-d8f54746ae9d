@@ -542,9 +542,8 @@ function random(mask,pmn::NTuple{N,Array{T,N}},len,Nens;
                 btrunc = [],
                 ) where {N,T}
 
-    s = DIVAnd.DIVAnd_background(
-        Val{:sparse},mask,pmn,len,alpha,moddim,scale_len,[];
-        btrunc = btrunc);
+    s = DIVAnd_background(
+          Val{:sparse},mask,pmn,len,alpha,moddim,scale_len,[]; btrunc = btrunc);
 
     n = size(s.iB,1)::Int
     z = randn(n,Nens);

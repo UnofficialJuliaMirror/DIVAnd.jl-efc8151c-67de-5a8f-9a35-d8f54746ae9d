@@ -22,7 +22,7 @@ function DIVAnd_background(operatortype,mask,pmn,Labs,alpha,moddim,
                            scale_len = true,mapindex = []; kwargs...)
     Labs = len_harmonize(Labs,mask)
     return DIVAnd_background(operatortype,mask,pmn,Labs,alpha,moddim,scale_len,
-                             mapindex, kwargs...)
+                             mapindex; kwargs...)
 end
 
 function DIVAnd_background(operatortype,mask,pmn,
